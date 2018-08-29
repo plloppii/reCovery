@@ -1,4 +1,5 @@
 import os.path
+from tkinter import BOTH, END, LEFT
 
 class recover:
 	def __init__(self):
@@ -10,6 +11,7 @@ class recover:
 		self.start= [0,0]
 		self.failedfile = {}
 		self.completed = False
+
 	def generate_resume_heights(self):
 		startinggcode = ["M104", "M190", "M140", "T0", "M900", "M605", "M92", "M220", "M221","G28"]
 		
@@ -67,16 +69,33 @@ class recover:
 		recovered.close()
 		return True
 
-	def generate_recovery_file(self,index):
+	def process_gcode(self,controller,view,event=None):
+		self.filename=controller.gcodeVar.get()
+		self.restart=controller.restartBool.get()
+		self.layerheight=controller.heightVar.get()
+		fail= self.generate_resume_heights()
+		print(controller.restartheightindex.get())
+		print(self.resumeheights)
+
+		#Referencing View Instance
+		view.value1.delete(1.0,END)
+		view.value2.delete(1.0,END)
+		view.value1.insert(END,self.resumeheights[0])
+		view.value2.insert(END,self.resumeheights[1])
+		view.output.insert(END,">>> Gcode processed! Please select a layer height and press Generate reCovery File.\n")
+		view.output.see("end")
+
+	def generate_recovery_file(self,view,controller):
 		#resumeline= int(input("I found two layer heights around that value: %.3f(0) and %.3f(1). Which one would you like to continue on? : "%(resumeheights[0],resumeheights[1])))
 		recovered = open(self.newfilename,"a")
-		i=self.start[index]
-		recovered.write("\nG1 Z%.3f\n" % (self.resumeheights[index]))
+		i=self.start[(controller.restartheightindex.get()-1)]
+		recovered.write("\nG1 Z%.3f\n" % (self.resumeheights[(controller.restartheightindex.get()-1)]))
 		while(i<len(self.failedfile)):
 			recovered.write(self.failedfile[i])
 			i+=1
 		#recovered.write()
 		self.completed = True
 		print("reCovery file created! Run the follow gcode in machine: " + self.newfilename)
+		view.output.insert(END,">>> reCovery file created! Run the follow gcode in machine: " + self.newfilename+"\n")
 		recovered.close()
 

@@ -6,9 +6,7 @@ from View import recoveryFrame
 import os.path
 
 class reCoveryInterface:
-	def __init__(self,imagename, master):
-		self.imagename=imagename
-		self.master= master
+	def __init__(self):
 		self.gcodeVar=StringVar()
 		self.gcodeVar.set("")
 		self.restartBool=BooleanVar()
@@ -19,7 +17,7 @@ class reCoveryInterface:
 		self.restartheightindex.set(0)
 
 	def initialize(self, model, view):
-		view.summon(model) #Creates initial 
+		view.summon(model,self) #Creates Interface
 
 
 '''
@@ -51,18 +49,10 @@ class reCoveryInterface:
 				self.master.value2.insert(END,obj.resumeheights[1])
 				self.master.output.insert(END,">>> Gcode processed! Please select a layer height and press Generate reCovery File.\n")
 				self.master.output.see("end")
-'''
+
 	def generate_recovery_file(self,obj):
-		#print(self.restartheightindex.get())
-		if(len(obj.filename)==0):
-			self.master.output.insert(END,">>> Please insert a valid gcode file!\n")
-		elif (obj.completed == True):
-			self.master.output.insert(END,"")
-		elif (self.restartheightindex.get()==0):
-			self.master.output.insert(END,">>> Please select a layer height and press Generate reCovery File!\n")
-		else:
-			obj.generate_recovery_file((self.restartheightindex.get()-1))
-			self.master.output.insert(END,">>> reCovery file created! Run the follow gcode in machine: " + obj.newfilename+"\n")
+		obj.generate_recovery_file((self.restartheightindex.get()-1))
+		self.master.output.insert(END,">>> reCovery file created! Run the follow gcode in machine: " + obj.newfilename+"\n")
 
 	def reset(self,obj,event=None):
 		obj.filename=""
@@ -146,14 +136,14 @@ class reCoveryInterface:
 		self.master.output.config(yscrollcommand=scrollbar.set,wrap=WORD)
 		self.master.root.title("re:Covery - re:3D gcode reCovery")
 		self.master.root.mainloop()
-
+'''
 if __name__ =='__main__':
 	model = recover() #Model Instance
-	view = recoveryFrame() #Interface Instance
+	view = recoveryFrame("re3D.png") #Interface Instance
 
-	controller= reCoveryInterface("re3D.png",view) 
+	controller= reCoveryInterface() 
 
 
-	controller.summon(model)
+	controller.initialize(model,view)
 
 

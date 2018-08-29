@@ -2,8 +2,9 @@ from tkinter import *
 from tkinter import ttk
 
 class recoveryFrame:
-	def __init__(self):
+	def __init__(self, imagename):
 		self.root= Tk()
+		self.imagename = imagename
 		self.value1 = None
 		self.value2 = None
 		self.gcodeentry = None
@@ -35,14 +36,24 @@ class recoveryFrame:
 		self.creategrid(widget, row, column, sticky, padx, pady)
 		return widget
 
-	def summon(self, obj):
+	def reset(self,model,controller,event=None):
+		model.filename=""
+		controller.gcodeVar.set("")
+		controller.restartBool.set(True)
+		controller.heightVar.set(0)
+		controller.restartheightindex.set(0)
+		self.value1.delete(1.0,END)
+		self.value2.delete(1.0,END)
+		model.completed = False
+
+	def summon(self, model,controller):
 		logo_and_selection_frame = Frame(self.root)
 		logo_and_selection_frame.grid(row=0,column=0)
 		# <----- Re3D Logo ----->
 		logo = Frame(logo_and_selection_frame)
 		logo.grid(row=0,column=0,padx=5,pady=5)
 
-		re3D = PhotoImage(file=self.imagename) #X
+		re3D = PhotoImage(file=self.imagename)
 		logolabel=Label(logo,image=re3D)
 		logolabel.grid(row=0,column=0, padx=5,pady=5)
 		bylabel = Label(logo,text="by plloppii @ re3D")
@@ -58,21 +69,21 @@ class recoveryFrame:
 		intro = self.createlabel(selection1, "Welcome to re:3D's gcode reCovery program.",0,0,W,5,5)
 
 		gcodelabel= self.createlabel(selection1,"Please enter your gcode file: ",1,0,W,3,3)
-		self.master.gcodeentry = self.createentry(selection1, self.gcodeVar, 10, 1,1,E,3,3) #X
+		self.gcodeentry = self.createentry(selection1, controller.gcodeVar, 10, 1,1,E,3,3) 
 
 		heightlabel = self.createlabel(selection1, "What is the approximate height measurement of the failed print? (in mm) : ",2,0,W,3,3)
-		self.heightentry = self.createentry(selection1,self.heightVar, 10,2,1,E,3,3) #X
+		self.heightentry = self.createentry(selection1,controller.heightVar, 10,2,1,E,3,3) 
 
 		restartlabel = self.createlabel(selection1,"Did your printer reset? (ie. Power Outtage) : ",3,0,W,3,3)
-		yesradio = self.createradio(selection1,"Yes",1,self.restartBool,3,1,E,3,0) #X
-		noradio = self.createradio(selection1,"No",0,self.restartBool,4,1,E,3,0) #X
+		yesradio = self.createradio(selection1,"Yes",1,controller.restartBool,3,1,E,3,0) 
+		noradio = self.createradio(selection1,"No",0,controller.restartBool,4,1,E,3,0)
 
 		# <----- Process Gcode button ----->
 		button= Frame (selections)
 		button.grid(row=5,column=0)
 
 		processbutton = self.createbutton(button,"Process Gcode",0,0,E,3,3)
-		processbutton.bind("<Button-1>",lambda event:self.process_gcode(obj)) #X Inputing Model Instance
+		processbutton.bind("<Button-1>",lambda event:model.process_gcode(controller,self)) #X Inputing Model Instance
 		div = Frame(selections, height = 1, width =500, background="black")
 		div.grid(row=6,column=0, pady= 10)
 
@@ -80,22 +91,22 @@ class recoveryFrame:
 		chooseframe = Frame(selections)
 		chooseframe.grid(row=7,column=0, sticky=W)
 		chooseheight = self.createlabel(chooseframe,"I found two layer heights, please choose which one to resume on:        ",0,0,W,3,3)
-		self.master.value1= self.createtext(chooseframe, 7, 1, 0,1,E,3,0)
-		self.master.value2= self.createtext(chooseframe,7,1,1,1,E,3,0)
+		self.value1= self.createtext(chooseframe, 7, 1, 0,1,E,3,0)
+		self.value2= self.createtext(chooseframe,7,1,1,1,E,3,0)
 
-		value = Radiobutton(chooseframe, value = 0, variable = self.restartheightindex) #X
-		value1radio	= Radiobutton(chooseframe,value=1, variable = self.restartheightindex) #X
+		value = Radiobutton(chooseframe, value = 0, variable = controller.restartheightindex)
+		value1radio	= Radiobutton(chooseframe,value=1, variable = controller.restartheightindex)
 		value1radio.grid(row=0,column=2,sticky=E)
-		value2radio = Radiobutton(chooseframe,value=2, variable = self.restartheightindex) #X
+		value2radio = Radiobutton(chooseframe,value=2, variable = controller.restartheightindex)
 		value2radio.grid(row=1,column=2,sticky=E)
 
 		# <----- Generate and Reset Buttons ----->
 		button1 = Frame(selections)
 		button1.grid(row=8,column=0)
 		generatebutton = self.createbutton(button1,"Generate reCovery File",0,0,E,3,3)
-		generatebutton.bind("<Button-1>",lambda event: self.generate_recovery_file(obj)) #X Inputting Model Instance
+		generatebutton.bind("<Button-1>",lambda event: model.generate_recovery_file(self,controller)) #X Inputting Model Instance
 		resetbutton = self.createbutton(button1,"Reset",0,1,W,3,3)
-		resetbutton.bind("<Button-1>",lambda event: self.reset(obj)) #X Inputting Model Instance
+		resetbutton.bind("<Button-1>",lambda event: self.reset(model,controller)) #X Inputting Model Instance
 
 		# <----- Console Output ----->
 		outputframe = Frame(self.root)
@@ -105,5 +116,7 @@ class recoveryFrame:
 		scrollbar.grid(row=0,column=1,sticky="nsew")
 
 		self.output.config(yscrollcommand=scrollbar.set,wrap=WORD)
+
+		# <----- Title and Mainloop ----->
 		self.root.title("re:Covery - re:3D gcode reCovery")
 		self.root.mainloop()
