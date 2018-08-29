@@ -12,8 +12,18 @@ class recover:
 		self.failedfile = {}
 		self.completed = False
 
+	def reset(self):
+		self.filename = ""
+		self.completed = False
+		self.restart = False
+		self.newfilename = ""
+		self.layerheight = 0
+		self.resumeheights = []
+		self.start= [0,0]
+		self.failedfile = {}
+
 	def generate_resume_heights(self):
-		startinggcode = ["M104", "M190", "M140", "T0", "M900", "M605", "M92", "M220", "M221","G28"]
+		startinggcode = ["M104", "M190", "M140", "M109", "T0", "M900", "M605", "M92", "M220", "M221","G28"]
 		
 		lineindex=0 #variable for the current lineindex
 		height=0 #variable for the current zheight
@@ -24,8 +34,7 @@ class recover:
 		nfilename = self.filename.replace(".gcode","")
 		self.newfilename = (nfilename+"_reCovered.gcode")
 		self.resumeheights=[]
-		if (not(os.path.isfile(self.filename))):
-			return True
+
 		failed= open(self.filename, "r")
 		recovered = open(self.newfilename,"w")
 		for line in failed:
@@ -51,15 +60,14 @@ class recover:
 					self.resumeheights.append(height)
 				lastheight = height
 
-
 				for gcode in startinggcode:
 					if gcode in line:
 						if (gcode == "M221") & (lineindex>250):
 							pass
 						elif "G28" in line:
-							if self.restart:
+							if self.restart==1:
 								recovered.write(line)
-							elif self.restart:
+							else:
 								recovered.write("G28 X Y \n")
 						else:
 							recovered.write(line)
@@ -67,35 +75,17 @@ class recover:
 			lineindex+=1
 		failed.close()
 		recovered.close()
-		return True
 
-	def process_gcode(self,controller,view,event=None):
-		self.filename=controller.gcodeVar.get()
-		self.restart=controller.restartBool.get()
-		self.layerheight=controller.heightVar.get()
-		fail= self.generate_resume_heights()
-		print(controller.restartheightindex.get())
-		print(self.resumeheights)
 
-		#Referencing View Instance
-		view.value1.delete(1.0,END)
-		view.value2.delete(1.0,END)
-		view.value1.insert(END,self.resumeheights[0])
-		view.value2.insert(END,self.resumeheights[1])
-		view.output.insert(END,">>> Gcode processed! Please select a layer height and press Generate reCovery File.\n")
-		view.output.see("end")
-
-	def generate_recovery_file(self,view,controller):
+	def generate_recovery_file(self,index):
 		#resumeline= int(input("I found two layer heights around that value: %.3f(0) and %.3f(1). Which one would you like to continue on? : "%(resumeheights[0],resumeheights[1])))
 		recovered = open(self.newfilename,"a")
-		i=self.start[(controller.restartheightindex.get()-1)]
-		recovered.write("\nG1 Z%.3f\n" % (self.resumeheights[(controller.restartheightindex.get()-1)]))
+		i=self.start[index]
+		recovered.write("\nG1 Z%.3f\n" % (self.resumeheights[index]))
 		while(i<len(self.failedfile)):
 			recovered.write(self.failedfile[i])
 			i+=1
-		#recovered.write()
 		self.completed = True
-		print("reCovery file created! Run the follow gcode in machine: " + self.newfilename)
-		view.output.insert(END,">>> reCovery file created! Run the follow gcode in machine: " + self.newfilename+"\n")
+		#print("reCovery file created! Run the follow gcode in machine: " + self.newfilename)
 		recovered.close()
 

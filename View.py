@@ -36,15 +36,9 @@ class recoveryFrame:
 		self.creategrid(widget, row, column, sticky, padx, pady)
 		return widget
 
-	def reset(self,model,controller,event=None):
-		model.filename=""
-		controller.gcodeVar.set("")
-		controller.restartBool.set(True)
-		controller.heightVar.set(0)
-		controller.restartheightindex.set(0)
+	def reset(self,event=None):
 		self.value1.delete(1.0,END)
 		self.value2.delete(1.0,END)
-		model.completed = False
 
 	def summon(self, model,controller):
 		logo_and_selection_frame = Frame(self.root)
@@ -71,10 +65,11 @@ class recoveryFrame:
 		gcodelabel= self.createlabel(selection1,"Please enter your gcode file: ",1,0,W,3,3)
 		self.gcodeentry = self.createentry(selection1, controller.gcodeVar, 10, 1,1,E,3,3) 
 
-		heightlabel = self.createlabel(selection1, "What is the approximate height measurement of the failed print? (in mm) : ",2,0,W,3,3)
+		heightlabel = self.createlabel(selection1, "What is the approximate height measurement of the failed print? (mm) : ",2,0,W,3,3)
 		self.heightentry = self.createentry(selection1,controller.heightVar, 10,2,1,E,3,3) 
 
 		restartlabel = self.createlabel(selection1,"Did your printer reset? (ie. Power Outtage) : ",3,0,W,3,3)
+		unselectedradio = Radiobutton(selection1, value = -1, variable=controller.restartBool)
 		yesradio = self.createradio(selection1,"Yes",1,controller.restartBool,3,1,E,3,0) 
 		noradio = self.createradio(selection1,"No",0,controller.restartBool,4,1,E,3,0)
 
@@ -83,7 +78,7 @@ class recoveryFrame:
 		button.grid(row=5,column=0)
 
 		processbutton = self.createbutton(button,"Process Gcode",0,0,E,3,3)
-		processbutton.bind("<Button-1>",lambda event:model.process_gcode(controller,self)) #X Inputing Model Instance
+		processbutton.bind("<Button-1>",lambda event:controller.processbuttonpressed()) #X Inputing Model Instance
 		div = Frame(selections, height = 1, width =500, background="black")
 		div.grid(row=6,column=0, pady= 10)
 
@@ -94,19 +89,19 @@ class recoveryFrame:
 		self.value1= self.createtext(chooseframe, 7, 1, 0,1,E,3,0)
 		self.value2= self.createtext(chooseframe,7,1,1,1,E,3,0)
 
-		value = Radiobutton(chooseframe, value = 0, variable = controller.restartheightindex)
-		value1radio	= Radiobutton(chooseframe,value=1, variable = controller.restartheightindex)
+		value = Radiobutton(chooseframe, value = -1, variable = controller.restartheightindex)
+		value1radio	= Radiobutton(chooseframe,value=0, variable = controller.restartheightindex)
 		value1radio.grid(row=0,column=2,sticky=E)
-		value2radio = Radiobutton(chooseframe,value=2, variable = controller.restartheightindex)
+		value2radio = Radiobutton(chooseframe,value=1, variable = controller.restartheightindex)
 		value2radio.grid(row=1,column=2,sticky=E)
 
 		# <----- Generate and Reset Buttons ----->
 		button1 = Frame(selections)
 		button1.grid(row=8,column=0)
 		generatebutton = self.createbutton(button1,"Generate reCovery File",0,0,E,3,3)
-		generatebutton.bind("<Button-1>",lambda event: model.generate_recovery_file(self,controller)) #X Inputting Model Instance
+		generatebutton.bind("<Button-1>",lambda event: controller.generatebuttonpressed()) #X Inputting Model Instance
 		resetbutton = self.createbutton(button1,"Reset",0,1,W,3,3)
-		resetbutton.bind("<Button-1>",lambda event: self.reset(model,controller)) #X Inputting Model Instance
+		resetbutton.bind("<Button-1>",lambda event: controller.resetbuttonpressed()) #X Inputting Model Instance
 
 		# <----- Console Output ----->
 		outputframe = Frame(self.root)
