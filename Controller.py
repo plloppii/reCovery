@@ -24,9 +24,8 @@ class reCoveryInterface:
 
 	def processbuttonpressed(self):
 		if(self.check(1)):
-			self.model.filename=self.gcodeVar.get()
-			self.model.restart=self.restartBool.get()
-			self.model.layerheight=self.heightVar.get()
+			self.model.restart = self.restartBool.get()
+			self.model.layerheight = self.heightVar.get()
 			self.model.generate_resume_heights()
 			if(self.check(2)):
 				self.updatelayerheights()
@@ -40,7 +39,7 @@ class reCoveryInterface:
 
 	def check(self,case):
 		if(case == 1):
-			if (self.gcodeVar.get() == "" or not(isfile(self.gcodeVar.get()))):
+			if (not(isfile(self.model.dir + self.model.filename))):
 				self.displayinconsole(">>> Please enter a valid gcode file")
 				return False
 			if (self.heightVar.get() == 0 or self.heightVar.get() == ""):
@@ -76,6 +75,22 @@ class reCoveryInterface:
 		self.restartBool.set(-1)
 		self.heightVar.set(0)
 		self.restartheightindex.set(-1)
+
+	def filebuttonpressed(self):
+		self.view.requestfile()
+		self.processfile()
+
+	def processfile(self):
+		dirr= self.view.root.fileName
+		name = ""
+		while (dirr[-1] != "/"):
+			name = dirr[-1]+name
+			dirr = dirr[:-1]
+		self.model.filename = name
+		self.model.dir = dirr
+		print(self.model.filename)
+		print(self.model.dir)
+
 	def displayinconsole(self,string):
 		self.view.output.insert(END,(string+"\n"))
 		self.view.output.see("end")

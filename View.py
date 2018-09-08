@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk
+from tkinter import filedialog
 
 class recoveryFrame:
 	def __init__(self, imagename):
@@ -10,6 +11,7 @@ class recoveryFrame:
 		self.gcodeentry = None
 		self.heightentry = None
 		self.output = None
+		self.filebutton = None
 
 
 	def creategrid(self,widget, row, column, sticky, padx, pady):
@@ -39,6 +41,10 @@ class recoveryFrame:
 	def reset(self,event=None):
 		self.value1.delete(1.0,END)
 		self.value2.delete(1.0,END)
+		self.filebutton.config(relief = RAISED)
+
+	def requestfile(self):
+		self.root.fileName = filedialog.askopenfilename(filetypes = (("Gcode files","*.gcode"),("all files","*.*")))
 
 	def summon(self, model,controller):
 		logo_and_selection_frame = Frame(self.root)
@@ -63,7 +69,11 @@ class recoveryFrame:
 		intro = self.createlabel(selection1, "Welcome to re:3D's gcode reCovery program.",0,0,W,5,5)
 
 		gcodelabel= self.createlabel(selection1,"Please enter your gcode file: ",1,0,W,3,3)
-		self.gcodeentry = self.createentry(selection1, controller.gcodeVar, 10, 1,1,E,3,3) 
+		#self.gcodeentry = self.createentry(selection1, controller.gcodeVar, 10, 1,1,E,3,3) 
+		self.filebutton = self.createbutton(selection1,"...",1,1,E,3,3)
+		self.filebutton.bind("<Button-1>", lambda event: controller.filebuttonpressed())
+		#root.fileName = filedialog.askopenfilename( filetypes = ( "Gcode","*.gcode" ) )
+		#controller.gcodeVar = tkFileDialog.askopenfilename(initialdir = "/")
 
 		heightlabel = self.createlabel(selection1, "What is the approximate height measurement of the failed print? (mm) : ",2,0,W,3,3)
 		self.heightentry = self.createentry(selection1,controller.heightVar, 10,2,1,E,3,3) 
