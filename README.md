@@ -1,5 +1,6 @@
 # Gcode reCovery Application
-<img src="img/Interface.JPG", width = "500px", height = "500" >
+<img src=img/Interface.JPG alt= "AppScreenshot" width = "500" >
+
 A gcode recovery application that helps users recover failed printers by reformatting their gcode file. 
 Whether your machine stopped printing because the power went out or the machine had a filament jam, the reCovery application can recover the print. By measuring the height of the model and inputting this measurement into the application along with the original gcode file, the application will generate a new recovery file that will recover the failed 3D print. 
 
