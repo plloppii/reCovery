@@ -1,6 +1,9 @@
 from tkinter import *
 from tkinter import ttk
 
+#import Model
+#import View
+
 from Model import recover
 from View import recoveryFrame
 

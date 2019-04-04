@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
+from myimage import *
 
 class recoveryFrame:
 	def __init__(self, imagename):
@@ -53,8 +54,10 @@ class recoveryFrame:
 		logo = Frame(logo_and_selection_frame)
 		logo.grid(row=0,column=0,padx=5,pady=5)
 
-		re3D = PhotoImage(file=self.imagename)
-		logolabel=Label(logo,image=re3D)
+		pic = imageString
+		render = PhotoImage(data=pic)
+		#re3D = PhotoImage(file=self.imagename)
+		logolabel=Label(logo,image=render)
 		logolabel.grid(row=0,column=0, padx=5,pady=5)
 		bylabel = Label(logo,text="by plloppii @ re3D")
 		bylabel.grid(row=1,column=0)
